@@ -1,0 +1,51 @@
+ ****MariaDB Server Side*****
+Step 1: Configure MariaDB open file
+#vi /etc/my.cnf
+#vi /etc/my.cnf.d/mariadb-server.cnf
+bind-address = 192.168.114.100 (put your server ip)
+# systemctl restart MariaDB
+
+Step 2: Create a Remote User or Grant Access
+
+Log in to MariaDB on the server:
+# mysql -u root -p
+CREATE USER 'remoteuser'@'192.168.114.145' IDENTIFIED BY 'your_password';            [use your client fix ip and your passwd ]
+GRANT ALL PRIVILEGES ON *.* TO 'remoteuser'@'192.168.114.145' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+GRANT ALL PRIVILEGES ON *.* TO 'remoteuser'@'%' IDENTIFIED BY 'your_password' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+FLU
+Step 3: Open Firewall Port 3306
+# firewall-cmd --permanent --add-port=3306/tcp
+# firewall-cmd --reload
+
+*********Client Side**********
+step 1:- hostname entry
+# vi /etc/hosts
+
+192.168.114.135 www.adesh.com
+
+step2:- Install the MySQL client
+
+# yum install MySQL
+
+step 3 :- Connect 
+
+# mysql -h 192.168.114.135 -u remoteuser -p   [connect using ip]
+
+# mysql -h www.adesh.com -u remoteuser -p     [connect using hostname]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
