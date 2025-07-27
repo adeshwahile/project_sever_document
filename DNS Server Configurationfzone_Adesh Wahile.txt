@@ -1,0 +1,117 @@
+######## DNS Server Configuration ##### Adesh Wahile######
+
+********server side configuration*******
+Take snapshot 
+
+step 1 :- Set hostname in server
+
+# hostnamectl set-hostname srv1.adesh.com
+
+step 2:- set ip
+
+# nmtui
+ip 192.168.0.50
+
+step 3:- Install package bind
+ 
+# yum search bind 
+# yum info bind.x86_64
+# yum install -y bind.x86_64
+
+step 4:- Local backup of configuration 
+
+# cp /etc/named.conf /tmp/named.com.bkp
+
+step 5 :- make changes in configuration file
+
+# vi /etc/named.conf
+
+options {
+  listen-on port 53 { 192.168.0.50; }; --------------put server ip
+  listen-on-v6 port 53 { ::1; };
+  directory   "/var/named";
+  dump-file   "/var/named/data/cache_dump.db";
+  statistics-file "/var/named/data/named_stats.txt";
+  memstatistics-file "/var/named/data/named_mem_stats.txt";
+  secroots-file "/var/named/data/named.secroots";
+  recursing-file  "/var/named/data/named.recursing";
+  allow-query     { any; };   ----- Allow queries from all systems
+
+step 5 :- Define Forward zone
+
+# cd /var/named
+# cp -a  named.localhost adesh.com.fzone
+
+# vi adesh.com.fzone
+$TTL 1D              
+@ IN SOA  srv1.radical.com. root.srv1.radical.com. (
+          0 ; serial 
+          1D  ; refresh
+          1H  ; retry  
+          1W  ; expire 
+          3H )  ; minimum                         
+@ NS  srv1.adesh.com.  
+srv1  A 192.168.0.50
+client1 A 192.168.0.20
+                    
+step 6:- make changes in zone file 
+
+# vi /etc/named.rfc192.zones
+zone "adesh.com" IN {
+  type master;
+  file "adesh.com.fzone";
+};
+ 
+step 7 :- check syntax
+# named-checkconf
+
+step 8 :- start service and make it persistence 
+
+# systemctl enable --now named.service
+
+step 9:- check on local system
+# nslookup srv1.adesh.com
+
+step 9 :- stop firewalld service and disable selinux
+
+# systemctl stop firewalld
+
+step 10 :- check on remote location
+# nslookup srv1.adesh.com
+remote testing successfull
+
+step 11:- add firewall rule
+# firewall-cmd --permanent --add-service=dns
+# firewall-cmd --reload
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
